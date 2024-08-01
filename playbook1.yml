@@ -1,0 +1,53 @@
+---
+- name: Installing Docker and Jenkins
+  hosts: all
+  become: yes
+  tasks:
+    - name: Ensuring /tmp directory exist
+      file:
+        path: /tmp
+        state: directory
+
+    - name: install Docker
+      apt:
+        name: curl
+        state: present
+        update_cache: yes
+
+    - name: Download Docker installation script
+      get_url:
+        url: https://get.docker.com
+        dest: ./get-docker.sh
+        mode: 'u+x'
+      become: yes
+
+    - name: Runing the Docker Installation Script
+      shell: sh ./get-docker.sh
+
+    - name: Installing Java
+      apt:
+        name: openjdk-11-jdk
+        state: present
+        update_cache: yes
+
+    - name: Adding the Jenkins GPS key
+      apt_key:
+        url: https://pkg.jenkins.io/debian/jenkins.io.key
+        state: present
+
+    - name: Installing Jeb=nkins Repo
+      apt_repository:
+        repo: 'deb http://pkg.jenkins.io/debian-stable binary/'
+        state: present
+
+    - name: installing jenkins
+      apt:
+        name: jenkins 
+        state: present
+        update_cache: yes
+
+    - name: stating jenkins
+      service:
+        name: jenkins
+        state: started
+        enabled: yes
